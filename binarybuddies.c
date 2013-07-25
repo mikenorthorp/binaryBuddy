@@ -35,6 +35,7 @@ typedef struct
 typedef struct
 {
     long mem33;
+    long mem32;
 } testStruct;
 
 // Initializes a single malloc call to a passed in size in bytes, and stores a global
@@ -101,7 +102,7 @@ void *get_memory( int size )
     // Check blocks for current depth until we find one without a header or a unused header
     void *currentLevelPointer;
     void *tempPointer;
-    int passAll;
+    int passAll = 0;
     for (i = 0; i < partitionSizeCurrent; i++)
     {
         printf("Checking %d partition", i + 1);
@@ -111,6 +112,7 @@ void *get_memory( int size )
         if ( ((buddyNode *)tempPointer)->isUsed == 0 || ((buddyNode *)tempPointer)->isUsed == NULL)
         {
             printf("Found null\n");
+            passAll = 1;
             currentLevelPointer = tempPointer;
             break;
         }
@@ -122,7 +124,6 @@ void *get_memory( int size )
     // current depth
 
     // If passes all checks make a buddyNode at the address found and return it
-    passAll = 1;
     if (passAll == 1)
     {
         // Set up base buddyNode struct pointer to the returned malloc address
