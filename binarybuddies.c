@@ -31,11 +31,6 @@ typedef struct
     short side;
 } buddyNode;
 
-typedef struct
-{
-    int mem1;
-} testStruct;
-
 // Initializes a single malloc call to a passed in size in bytes, and stores a global
 // pointer to the root header containing the root block.
 int start_memory(int size)
@@ -272,38 +267,4 @@ void end_memory(void)
 
     // Free initial malloc call
     free(mallocPointer);
-}
-
-// Main testing
-int main( int argc, char **argv )
-{
-    start_memory(2048);
-
-    printf("Print out malloc pointer for initial check\n");
-    printf("%p\n", mallocPointer);
-
-    // Attempt to get memory
-    get_memory(2);
-    int testSize = sizeof(testStruct);
-    printf("Size is %d\n", testSize);
-    testStruct *test1 = get_memory(testSize);
-    printf("%p\n", (void *)test1);
-
-    printf("Size is %d\n", testSize);
-    testStruct *test2 = get_memory(testSize);
-    printf("%p\n", (void *)test2);
-
-    printf("Size is %d\n", testSize);
-    testStruct *test3 = get_memory(testSize);
-    printf("%p\n", (void *)test3);
-
-    // Test release memory
-    release_memory(test3);
-
-    // Test end_memory
-    end_memory();
-
-
-    // Exit main
-    return 1;
 }
