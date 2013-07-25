@@ -11,6 +11,7 @@ int usedMemory;
 
 // Depth to check how many levels have been created
 int depth = 0;
+int lowestBlockSize = 0;
 
 int buddy = 1;
 
@@ -89,8 +90,8 @@ void *get_memory( int size )
         partitionSizeCurrent = (int)pow(2.0, ((double)tempCount));
         // Calculate the partition size to search block for lowest possible depth
         partitionSizeLowest = (int)pow(2.0, ((double)depth));
-
         i = ((i - ((partitionSizeCurrent) * sizeof(buddyNode))) / (partitionSizeCurrent));
+        lowestBlockSize = (i + sizeof(buddyNode));
     }
     int currentFreeMem = i;
 
@@ -125,7 +126,7 @@ void *get_memory( int size )
             // Additional check to see where buddy is
             if (((buddyNode *)tempPointer)->isUsed == 0)
             {
-            	printf("Is used is 0 and not null or 1\n");
+                printf("Is used is 0 and not null or 1\n");
                 // Check if left or right
                 // Left
                 if (side == 1)
@@ -133,12 +134,12 @@ void *get_memory( int size )
                     buddyCheck = tempPointer + (currentFreeMem + sizeof(buddyNode));
                     if (((buddyNode *)buddyCheck)->isUsed == 0 || ((buddyNode *)buddyCheck)->isUsed == 1)
                     {
-                    	printf("Pass all is 1\n");
+                        printf("Pass all is 1\n");
                         passAll = 1;
                     }
                     else
                     {
-                    	printf("Pass all is 0\n");
+                        printf("Pass all is 0\n");
                         passAll = 0;
                     }
                 }
@@ -148,18 +149,20 @@ void *get_memory( int size )
                     buddyCheck = tempPointer - (currentFreeMem + sizeof(buddyNode));
                     if (((buddyNode *)buddyCheck)->isUsed == 0 || ((buddyNode *)buddyCheck)->isUsed == 1)
                     {
-                    	printf("Pass all is 1\n");
+                        printf("Pass all is 1\n");
                         passAll = 1;
                     }
                     else
                     {
-                    	printf("Pass all is 0\n");
+                        printf("Pass all is 0\n");
                         passAll = 0;
                     }
                 }
-            } else {
-            	printf("Pass all is 1\n");
-            	passAll = 1;
+            }
+            else
+            {
+                printf("Pass all is 1\n");
+                passAll = 1;
             }
 
             printf("this is the passAll: %d\n", passAll);
@@ -235,14 +238,40 @@ void *get_memory( int size )
 
 
 // This releases the memory from the pointer
-void release_memory( void *p ) {
-	// Just set the pointer to not be used, making it unallocated now
-	((buddyNode *)p)->isUsed == 0;
-	printf("Released memory at %p\n", p);
+void release_memory( void *p )
+{
+    // Just set the pointer to not be used, making it unallocated now
+    ((buddyNode *)p)->isUsed = 0;
+    printf("Released memory at %p\n", p);
 }
 
-void end_memory(void) {
-	printf("Test");
+void end_memory(void)
+{
+    // Loop through all the possible headers at lowest possible depth
+    // Calculate the partition size to search block for lowest possible depth
+    int partitionSizeLowest = (int)pow(2.0, ((double)depth));
+    int blockSize = lowestBlockSize;
+    void *pointer;
+
+    int i;
+
+    printf("The parition size lowest is %d\n", partitionSizeLowest);
+    printf("The block size is %d\n", blockSize);
+
+    // Loop through all possible headers
+    for(i = 0; i < partitionSizeLowest; i++) {
+    	pointer = (mallocPointer + (i*(blockSize)));
+    	if(((buddyNode*)pointer)->isUsed == 1) {
+    		printf("You have a leak at block %p\n", pointer);
+    		printf("Releasing memory at block %p\n", pointer);
+
+    		//Release it
+    		((buddyNode*)pointer)->isUsed = 0;
+    	}
+    }
+
+    // Free initial malloc call
+    free(mallocPointer);
 }
 
 // Main testing
