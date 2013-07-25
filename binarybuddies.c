@@ -14,6 +14,8 @@ int depth = 0;
 
 int buddy = 1;
 
+int side = 0;
+
 //base pointer returned by malloc
 void *mallocPointer;
 
@@ -26,16 +28,17 @@ typedef struct
     int memSize;
     // Check if is used - 2bytes
     short isUsed;
-    // Storage of buddy number - 2byte
-    short buddy;
+    // Storage of right or left side (1 = left 2 = right) - 2byte
+    short side;
     // Pointer to the memory address of this node - > 2 bytes
     void *memPointer;
 } buddyNode;
 
 typedef struct
 {
-    long mem33;
-    long mem32;
+    int mem1;
+    int mem2;
+    int mem3;
 } testStruct;
 
 // Initializes a single malloc call to a passed in size in bytes, and stores a global
@@ -78,20 +81,22 @@ void *get_memory( int size )
     while (size <= i / 2)
     {
         printf("free memory is %d\n", i);
-        tempCount++;
-        printf("Depth is %d\n", depth);
+
+        printf("Depth is %d\n", tempCount);
         // Increase depth if new call goes lower
         if (tempCount > depth)
         {
             depth = tempCount;
         }
 
-        i = ((i - ((tempCount + 1) * sizeof(buddyNode))) / 2);
+        i = ((i - ((partitionSizeCurrent) * sizeof(buddyNode))) / 2);
         // Calculate the partition size to search block for current tempCount depth
         partitionSizeCurrent = (int)pow(2.0, ((double)tempCount));
         // Calculate the partition size to search block for lowest possible depth
         partitionSizeLowest = (int)pow(2.0, ((double)depth));
+        tempCount++;
     }
+    int currentFreeMem = i;
 
     // Testing depth parition sizes
     printf("Printing current depth partition size:");
@@ -105,9 +110,18 @@ void *get_memory( int size )
     int passAll = 0;
     for (i = 0; i < partitionSizeCurrent; i++)
     {
+        // See if its on left or right
+        if (i % 2 == 0)
+        {
+            side = 1;
+        }
+        else
+        {
+            side = 2;
+        }
         printf("Checking %d partition", i + 1);
-        printf("This is the parition size: %d\n", totalMemory / partitionSizeCurrent);
-        tempPointer = mallocPointer + (i * (totalMemory / partitionSizeCurrent));
+        printf("This is the parition size: %d\n", currentFreeMem);
+        tempPointer = mallocPointer + (i * (currentFreeMem));
 
         if ( ((buddyNode *)tempPointer)->isUsed == 0 || ((buddyNode *)tempPointer)->isUsed == NULL)
         {
@@ -132,13 +146,29 @@ void *get_memory( int size )
         node->memSize = (totalMemory / partitionSizeCurrent);
         // Set not used
         node->isUsed = 1;
-        // Set buddy number
-        node->buddy = buddy;
-        buddy++;
+        // Set if side is left or right (1 = left 2 = right)
+        node->side = side;
         // Set the address to the currentLevelPointer
         node->memPointer = currentLevelPointer;
 
         printf("Created node at %p\n", ((buddyNode *)node)->memPointer);
+        void *buddyPointer;
+
+
+        if (side == 1)
+        {
+            //buddyPointer = currentLevelPointer + ()
+        }
+        else if (side == 2)
+        {
+            //buddyPointer = currentLevelPointer -
+        }
+        else
+        {
+            printf("You broke the sides\n");
+        }
+
+        buddyNode *nodeBuddy = (currentLevelPointer);
         return (void *)currentLevelPointer;
     }
     else
@@ -152,7 +182,7 @@ void *get_memory( int size )
 int main( int argc, char **argv )
 {
     printf("Test\n");
-    start_memory(32);
+    start_memory(256);
     printf("End start mem\n");
     printf("Print out malloc pointer for initial check\n");
     printf("%p\n", mallocPointer);
