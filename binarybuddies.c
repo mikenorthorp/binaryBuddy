@@ -8,11 +8,7 @@
    a pointer to a memory location, and a end_memory that cleans everything up and
    displays leaks. */
 
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <stdint.h>
+#include "binarybuddies.h"
 
 /* Global variables */
 
