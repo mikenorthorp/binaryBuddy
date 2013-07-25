@@ -23,15 +23,11 @@ void *mallocPointer;
 // and the a
 typedef struct
 {
-    // Total header size = 16bytes after padding
-    // Short for size of memory up to 4294967296 bytes - 4bytes
-    int memSize;
+    // Total header size = 4bytes after padding
     // Check if is used - 2bytes
     short isUsed;
     // Storage of right or left side (1 = left 2 = right) - 2byte
     short side;
-    // Pointer to the memory address of this node - > 2 bytes
-    void *memPointer;
 } buddyNode;
 
 typedef struct
@@ -50,7 +46,7 @@ int start_memory(int size)
         totalMemory = size;
         // Set free memory to total minus used
         freeMemory = totalMemory;
-
+        printf("size of struct is %d\n", sizeof(buddyNode));
         // Return 1 on sucess
         return 1;
     }
@@ -152,16 +148,12 @@ void *get_memory( int size )
     {
         // Set up base buddyNode struct pointer to the returned malloc address
         buddyNode *node = currentLevelPointer;
-        // Set initial free space (total minus header)
-        node->memSize = (totalMemory / partitionSizeCurrent);
         // Set not used
         node->isUsed = 1;
         // Set if side is left or right (1 = left 2 = right)
         node->side = side;
-        // Set the address to the currentLevelPointer
-        node->memPointer = currentLevelPointer;
 
-        printf("Created node at %p\n", ((buddyNode *)node)->memPointer);
+        printf("Created node at %p\n", currentLevelPointer);
         void *buddyPointer;
 
 
