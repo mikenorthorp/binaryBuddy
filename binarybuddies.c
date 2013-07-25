@@ -37,8 +37,6 @@ typedef struct
 typedef struct
 {
     int mem1;
-    int mem2;
-    int mem3;
 } testStruct;
 
 // Initializes a single malloc call to a passed in size in bytes, and stores a global
@@ -77,26 +75,34 @@ void *get_memory( int size )
     partitionSizeLowest = 1;
 
     i = i - sizeof(buddyNode);
-    // Find how many levels need to go
-    while (size <= i / 2)
-    {
-        printf("free memory is %d\n", i);
+    printf("free memory is %d\n", i);
 
-        printf("Depth is %d\n", tempCount);
+    printf("this is the size before loop: %d\n", size);
+    // Find how many levels need to go unless it fits in top block
+    while (size < (i/4))
+    {
+    	i = freeMemory;
+
+        tempCount++;
+
         // Increase depth if new call goes lower
         if (tempCount > depth)
         {
             depth = tempCount;
         }
 
-        i = ((i - ((partitionSizeCurrent) * sizeof(buddyNode))) / 2);
+        printf("Depth is %d\n", tempCount);
+
         // Calculate the partition size to search block for current tempCount depth
         partitionSizeCurrent = (int)pow(2.0, ((double)tempCount));
         // Calculate the partition size to search block for lowest possible depth
         partitionSizeLowest = (int)pow(2.0, ((double)depth));
-        tempCount++;
+
+        i = ((i - ((partitionSizeCurrent) * sizeof(buddyNode))) / (partitionSizeCurrent));
+        printf("Avaialble space is %d\n", i);
     }
     int currentFreeMem = i;
+    printf("Current free is %d\n", currentFreeMem);
 
     // Testing depth parition sizes
     printf("Printing current depth partition size:");
@@ -107,7 +113,9 @@ void *get_memory( int size )
     // Check blocks for current depth until we find one without a header or a unused header
     void *currentLevelPointer;
     void *tempPointer;
+
     int passAll = 0;
+
     for (i = 0; i < partitionSizeCurrent; i++)
     {
         // See if its on left or right
@@ -120,8 +128,10 @@ void *get_memory( int size )
             side = 2;
         }
         printf("Checking %d partition", i + 1);
-        printf("This is the parition size: %d\n", currentFreeMem);
-        tempPointer = mallocPointer + (i * (currentFreeMem));
+        printf("This is the current free size: %d\n", currentFreeMem);
+        int blockSize = (i * (currentFreeMem + sizeof(buddyNode)));
+        printf("Size of block is : %d\n", blockSize);
+        tempPointer = mallocPointer + blockSize;
 
         if ( ((buddyNode *)tempPointer)->isUsed == 0 || ((buddyNode *)tempPointer)->isUsed == NULL)
         {
@@ -182,7 +192,7 @@ void *get_memory( int size )
 int main( int argc, char **argv )
 {
     printf("Test\n");
-    start_memory(256);
+    start_memory(2048);
     printf("End start mem\n");
     printf("Print out malloc pointer for initial check\n");
     printf("%p\n", mallocPointer);
