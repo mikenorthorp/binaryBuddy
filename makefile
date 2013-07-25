@@ -10,4 +10,4 @@ binarybuddies.o: binarybuddies.c binarybuddies.h
 	gcc $(CCFLAGS) -c binarybuddies.c -lm
 
 clean:
-	-rm binarybuddies binarybuddies.o
+	-rm binarybuddies binarybuddies.o test.o
