@@ -1,0 +1,61 @@
+------------------------------
+Test Cases Passed
+------------------------------
+All below
+
+Also included is test.c which runs some basic function testing.
+
+------------------------------
+Black Box Tests
+------------------------------
+
+Black Box Tests:
+
+1. Ensure that malloc call in start_memory returns correctly
+2. Ensure that get_memory does not return a partition that is more than double the required size
+3. Ensure that after release_memory, the location released is free and if the buddy of the location is freed, the buddies recombine
+4. Ensure that end_memory find any memory that has not been released and frees the memory provided by the original malloc call
+
+------------------------------
+White Box Tests
+------------------------------
+
+1. Ensure that the partitions are dividing into two equal sizes based on the non header free memory
+2. Ensure that all variables inthe buddyNode struct are intialized properly when a new buddy is created.
+3. Ensure that buddies recombine
+4. Ensure that non-buddies won't recombine
+5. Ensure that memory locations are properly spaced and sized
+6. Ensure that each buddy is either 'left' or 'right' buddy
+7. Ensure that the partition size is correct accounting for the header and the 'size' provided
+8. Ensure that buddies are marked as 'used' when they are occupied or divided, and 'not used' when they are empty
+9. Ensure that when memory is released, the correct memory parition is marked as 'not used'
+10. Ensure that the values are correct for both parition size and free memory in that partition
+11. Ensure that the program is aware of the lowest level of buddies there are currently being used (smallest partition sizes)
+12. Ensure that when a buddy is marked as 'not used' it checks to see if it's buddy is being used.
+
+
+
+
+------------------------------
+Test Cases Failed
+------------------------------
+All below
+
+------------------------------
+Black Box Tests
+------------------------------
+
+Black Box Tests:
+
+1. Ensure that grow_memory allocates extra memory to the end of a partition.
+2. Ensure that if a partition cannot grow, grow_memory relocates the desired partition
+3. Ensure that pregrow_memory adds memory to the front ofthe partition
+
+------------------------------
+White Box Tests
+------------------------------
+
+May fail in some cases of smaller parititons overwriting bigger parititons
+
+1. Ensure that partitions are not over-written if they are occupied
+
