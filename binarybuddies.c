@@ -46,7 +46,7 @@ int start_memory(int size)
         totalMemory = size;
         // Set free memory to total minus used
         freeMemory = totalMemory;
-        printf("size of struct is %d\n", sizeof(buddyNode));
+
         // Return 1 on sucess
         return 1;
     }
@@ -71,9 +71,7 @@ void *get_memory( int size )
     partitionSizeLowest = 1;
 
     i = i - sizeof(buddyNode);
-    printf("free memory is %d\n", i);
 
-    printf("this is the size before loop: %d\n", size);
     // Find how many levels need to go unless it fits in top block
     while (size < (i / 4))
     {
@@ -87,31 +85,20 @@ void *get_memory( int size )
             depth = tempCount;
         }
 
-        printf("Depth is %d\n", tempCount);
-
         // Calculate the partition size to search block for current tempCount depth
         partitionSizeCurrent = (int)pow(2.0, ((double)tempCount));
         // Calculate the partition size to search block for lowest possible depth
         partitionSizeLowest = (int)pow(2.0, ((double)depth));
 
         i = ((i - ((partitionSizeCurrent) * sizeof(buddyNode))) / (partitionSizeCurrent));
-        printf("Avaialble space is %d\n", i);
     }
     int currentFreeMem = i;
-    printf("Current free is %d\n", currentFreeMem);
-
-    // Testing depth parition sizes
-    printf("Printing current depth partition size:");
-    printf(" %d\n", partitionSizeCurrent);
-    printf("Printing lowest depth partition size:");
-    printf(" %d\n", partitionSizeLowest);
 
     // Check blocks for current depth until we find one without a header or a unused header
     void *currentLevelPointer;
     void *tempPointer;
 
     int passAll = 0;
-    int z;
     int blockCounter;
 
     for (blockCounter = 0; blockCounter < partitionSizeCurrent; blockCounter++)
@@ -134,10 +121,49 @@ void *get_memory( int size )
 
         if ( ((buddyNode *)tempPointer)->isUsed == 0 || ((buddyNode *)tempPointer)->isUsed == NULL)
         {
-            printf("Found empty\n");
-            passAll = 1;
+            void *buddyCheck;
+            // Additional check to see where buddy is
+            if (((buddyNode *)tempPointer)->isUsed == 0)
+            {
+            	printf("Is used is 0 and not null or 1\n");
+                // Check if left or right
+                // Left
+                if (side == 1)
+                {
+                    buddyCheck = tempPointer + (currentFreeMem + sizeof(buddyNode));
+                    if (((buddyNode *)buddyCheck)->isUsed == 0 || ((buddyNode *)buddyCheck)->isUsed == 1)
+                    {
+                    	printf("Pass all is 1\n");
+                        passAll = 1;
+                    }
+                    else
+                    {
+                    	printf("Pass all is 0\n");
+                        passAll = 0;
+                    }
+                }
+                // Right
+                else if (side == 2)
+                {
+                    buddyCheck = tempPointer - (currentFreeMem + sizeof(buddyNode));
+                    if (((buddyNode *)buddyCheck)->isUsed == 0 || ((buddyNode *)buddyCheck)->isUsed == 1)
+                    {
+                    	printf("Pass all is 1\n");
+                        passAll = 1;
+                    }
+                    else
+                    {
+                    	printf("Pass all is 0\n");
+                        passAll = 0;
+                    }
+                }
+            } else {
+            	printf("Pass all is 1\n");
+            	passAll = 1;
+            }
+
+            printf("this is the passAll: %d\n", passAll);
             currentLevelPointer = tempPointer;
-            z = blockCounter;
             break;
         }
     }
@@ -158,14 +184,9 @@ void *get_memory( int size )
         node->side = side;
 
         printf("Created node at %p\n", currentLevelPointer);
+
         void *newPointer;
-
-
-        printf("%d IS Z\n", z);
-        int singleBlockSize = (z * ((currentFreeMem + sizeof(buddyNode))));
         int newBlockSize = sizeof(buddyNode) + currentFreeMem;
-        printf("%d IS Z\n", z);
-        printf("The block size is still %d\n", newBlockSize);
 
         if (side == 1)
         {
@@ -188,7 +209,6 @@ void *get_memory( int size )
         // Set not used
         if ( nodeBuddy->isUsed == 1)
         {
-            // Thats cool
             printf("This buddy is used\n");
         }
         else
@@ -213,17 +233,28 @@ void *get_memory( int size )
     }
 }
 
+
+// This releases the memory from the pointer
+void release_memory( void *p ) {
+	// Just set the pointer to not be used, making it unallocated now
+	((buddyNode *)p)->isUsed == 0;
+	printf("Released memory at %p\n", p);
+}
+
+void end_memory(void) {
+	printf("Test");
+}
+
 // Main testing
 int main( int argc, char **argv )
 {
-    printf("Test\n");
     start_memory(2048);
-    printf("End start mem\n");
+
     printf("Print out malloc pointer for initial check\n");
     printf("%p\n", mallocPointer);
 
     // Attempt to get memory
-    printf("Get the memory of testStruct\n");
+    get_memory(2);
     int testSize = sizeof(testStruct);
     printf("Size is %d\n", testSize);
     testStruct *test1 = get_memory(testSize);
@@ -233,10 +264,17 @@ int main( int argc, char **argv )
     testStruct *test2 = get_memory(testSize);
     printf("%p\n", (void *)test2);
 
-     printf("Size is %d\n", testSize);
+    printf("Size is %d\n", testSize);
     testStruct *test3 = get_memory(testSize);
     printf("%p\n", (void *)test3);
 
+    // Test release memory
+    release_memory(test3);
 
+    // Test end_memory
+    end_memory();
+
+
+    // Exit main
     return 1;
 }
