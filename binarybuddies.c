@@ -34,14 +34,7 @@ typedef struct
 
 typedef struct
 {
-    int mem1;
-    int mem2;
-    int mem3;
-    int mem4;
-    int mem5;
-    int mem6;
-    int mem7;
-    int mem8;
+    long mem33;
 } testStruct;
 
 // Initializes a single malloc call to a passed in size in bytes, and stores a global
@@ -79,11 +72,11 @@ void *get_memory( int size )
     partitionSizeCurrent = 1;
     partitionSizeLowest = 1;
 
-     i = i - sizeof(buddyNode);
+    i = i - sizeof(buddyNode);
     // Find how many levels need to go
-    while (size <= i/2)
+    while (size <= i / 2)
     {
-    	printf("free memory is %d\n", i);
+        printf("free memory is %d\n", i);
         tempCount++;
         printf("Depth is %d\n", depth);
         // Increase depth if new call goes lower
@@ -111,6 +104,8 @@ void *get_memory( int size )
     int passAll;
     for (i = 0; i < partitionSizeCurrent; i++)
     {
+        printf("Checking %d partition", i + 1);
+        printf("This is the parition size: %d\n", totalMemory / partitionSizeCurrent);
         tempPointer = mallocPointer + (i * (totalMemory / partitionSizeCurrent));
 
         if ( ((buddyNode *)tempPointer)->isUsed == 0 || ((buddyNode *)tempPointer)->isUsed == NULL)
@@ -156,7 +151,7 @@ void *get_memory( int size )
 int main( int argc, char **argv )
 {
     printf("Test\n");
-    start_memory(256);
+    start_memory(32);
     printf("End start mem\n");
     printf("Print out malloc pointer for initial check\n");
     printf("%p\n", mallocPointer);
@@ -166,11 +161,11 @@ int main( int argc, char **argv )
     int testSize = sizeof(testStruct);
     printf("Size is %d\n", testSize);
     testStruct *test1 = get_memory(testSize);
-    printf("%p\n", (void*)test1);
+    printf("%p\n", (void *)test1);
 
     printf("Size is %d\n", testSize);
     testStruct *test2 = get_memory(testSize);
-    printf("%p\n", (void*)test2);
+    printf("%p\n", (void *)test2);
 
 
     return 1;
