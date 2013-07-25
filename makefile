@@ -3,10 +3,10 @@
 
 CCFLAGS = -g -Wall
 
-binarybuddies: binarybuddies.o
-	gcc $(CCFLAGS) -o binarybuddies binarybuddies.o -lm
+binarybuddies: test.o binarybuddies.o binarybuddies.h
+	gcc $(CCFLAGS) -o binarybuddies test.c binarybuddies.o -lm
 
-binarybuddies.o: binarybuddies.c
+binarybuddies.o: binarybuddies.c binarybuddies.h
 	gcc $(CCFLAGS) -c binarybuddies.c -lm
 
 clean:
